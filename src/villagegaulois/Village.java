@@ -1,5 +1,6 @@
 package villagegaulois;
 
+import exception.VillageSansChefException;
 import personnages.Chef;
 import personnages.Gaulois;
 
@@ -28,7 +29,7 @@ public class Village {
 		
 		public void utiliserEtal(int indiceEtal, Gaulois vendeur, String produit, int nbProduit) {
 			if(etals[indiceEtal].isEtalOccupe()) {
-				System.out.println("Cette étal est déjà occupé.");
+				System.out.println("Cette ï¿½tal est dï¿½jï¿½ occupï¿½.");
 			}
 			else {
 				etals[indiceEtal].occuperEtal(vendeur, produit, nbProduit);
@@ -68,29 +69,31 @@ public class Village {
 		}
 		
 		public String afficherMarche() {
+			StringBuilder chaine = new StringBuilder();
 			int nbEtalVide = 0;
 			for(int i=0; i<nombreEtal; i++) {
 				if(!(etals[i].isEtalOccupe())) {
 					nbEtalVide ++;
 				}
 				else {
-					etals[i].afficherEtal();
+					chaine.append(etals[i].afficherEtal());
 				}
 			}
-			return "Il reste " + nbEtalVide + " étals non utilisés dans le marché.\n";
+			chaine.append("Il reste " + nbEtalVide + " Ã©tals non utilisÃ©es dans le marchÃ©.\n");
+			return chaine.toString();
 		}
 	}
 	
 	public String installerVendeur(Gaulois vendeur, String produit, int nbProduit) {
 		int numerosEtalVide = marche.trouverEtalLibre();
 		if(numerosEtalVide == -1) {
-			return "Les étals sont toutes libres.";
+			return "Les ï¿½tals sont toutes libres.";
 		}
 		else {
 			marche.utiliserEtal(numerosEtalVide, vendeur, produit, nbProduit);
 			
 			return vendeur.getNom() + " cherche un endroit pour vendre " + nbProduit + " " + produit + ".\nLe vendeur " 
-			+ vendeur.getNom() + " vend des " + produit + " à l'étal n°" + numerosEtalVide + "\n";
+			+ vendeur.getNom() + " vend des " + produit + " ï¿½ l'ï¿½tal nï¿½" + numerosEtalVide + "\n";
 		}
 	}
 	
@@ -103,8 +106,18 @@ public class Village {
 		return chaine;
 	}
 	
+	public Etal rechercherEtal(Gaulois vendeur) {
+		return marche.trouverVendeur(vendeur);
+	}
+	
 	public String partirVendeur(Gaulois vendeur) {
 		return marche.trouverVendeur(vendeur).libererEtal();
+	}
+	
+	public String afficherMarche() {
+		StringBuilder chaine = new StringBuilder();
+		chaine.append("Le marchÃ© du village " + this.getNom() + " possÃ¨de plusieurs Ã©tals :\n" + marche.afficherMarche());
+		return chaine.toString();
 	}
 
 	public String getNom() {
@@ -135,7 +148,8 @@ public class Village {
 		return null;
 	}
 
-	public String afficherVillageois() {
+	public String afficherVillageois() throws VillageSansChefException{
+		if(chef == null) throw new VillageSansChefException("Le village n'a pas de chef");
 		StringBuilder chaine = new StringBuilder();
 		if (nbVillageois < 1) {
 			chaine.append("Il n'y a encore aucun habitant au village du chef "
